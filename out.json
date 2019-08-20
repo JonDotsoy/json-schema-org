@@ -1,0 +1,757 @@
+{
+  "label": "Person",
+  "comment": "A person (alive, dead, undead, or fictional).",
+  "resource": "http://schema.org/Person",
+  "sameAs": "https://schema.org/Person",
+  "equivalentClass": "http://xmlns.com/foaf/0.1/Person",
+  "subClassOf": "http://schema.org/Thing",
+  "properties": [
+    {
+      "label": "additionalName",
+      "comment": "An additional name for a Person, can be used for a middle name.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "address",
+      "comment": "Physical address of the item.",
+      "rangeIncludes": [
+        "http://schema.org/PostalAddress",
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/GeoCoordinates",
+        "http://schema.org/GeoShape",
+        "http://schema.org/Organization",
+        "http://schema.org/Person",
+        "http://schema.org/Place"
+      ]
+    },
+    {
+      "label": "affiliation",
+      "comment": "An organization that this person is affiliated with. For example, a school/university, a club, or a team.",
+      "rangeIncludes": [
+        "http://schema.org/Organization"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "alumniOf",
+      "comment": "An organization that the person is an alumni of. Inverse property: alumni.",
+      "rangeIncludes": [
+        "http://schema.org/EducationalOrganization",
+        "http://schema.org/Organization"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "award",
+      "comment": "An award won by or for this item. Supersedes awards.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/CreativeWork",
+        "http://schema.org/Organization",
+        "http://schema.org/Person",
+        "http://schema.org/Product",
+        "http://schema.org/Service"
+      ]
+    },
+    {
+      "label": "birthDate",
+      "comment": "Date of birth.",
+      "rangeIncludes": [
+        "http://schema.org/Date"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "birthPlace",
+      "comment": "The place where the person was born.",
+      "rangeIncludes": [
+        "http://schema.org/Place"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "brand",
+      "comment": "The brand(s) associated with a product or service, or the brand(s) maintained by an organization or business person.",
+      "rangeIncludes": [
+        "http://schema.org/Brand",
+        "http://schema.org/Organization"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person",
+        "http://schema.org/Product",
+        "http://schema.org/Service"
+      ]
+    },
+    {
+      "label": "children",
+      "comment": "A child of the person.",
+      "rangeIncludes": [
+        "http://schema.org/Person"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "colleague",
+      "comment": "A colleague of the person. Supersedes colleagues.",
+      "rangeIncludes": [
+        "http://schema.org/Person",
+        "http://schema.org/URL"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "contactPoint",
+      "comment": "A contact point for a person or organization. Supersedes contactPoints.",
+      "rangeIncludes": [
+        "http://schema.org/ContactPoint"
+      ],
+      "domainIncludes": [
+        "http://schema.org/HealthInsurancePlan",
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "deathDate",
+      "comment": "Date of death.",
+      "rangeIncludes": [
+        "http://schema.org/Date"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "deathPlace",
+      "comment": "The place where the person died.",
+      "rangeIncludes": [
+        "http://schema.org/Place"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "duns",
+      "comment": "The Dun & Bradstreet DUNS number for identifying an organization or business person.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "email",
+      "comment": "Email address.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/ContactPoint",
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "familyName",
+      "comment": "Family name. In the U.S., the last name of an Person. This can be used along with givenName instead of the name property.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "faxNumber",
+      "comment": "The fax number.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/ContactPoint",
+        "http://schema.org/Organization",
+        "http://schema.org/Person",
+        "http://schema.org/Place"
+      ]
+    },
+    {
+      "label": "follows",
+      "comment": "The most generic uni-directional social relation.",
+      "rangeIncludes": [
+        "http://schema.org/Person"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "funder",
+      "comment": "A person or organization that supports (sponsors) something through some kind of financial contribution.",
+      "rangeIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ],
+      "domainIncludes": [
+        "http://schema.org/CreativeWork",
+        "http://schema.org/Event",
+        "http://schema.org/MonetaryGrant",
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "gender",
+      "comment": "Gender of the person. While http://schema.org/Male and http://schema.org/Female may be used, text strings are also acceptable for people who do not identify as a binary gender.",
+      "rangeIncludes": [
+        "http://schema.org/GenderType",
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "givenName",
+      "comment": "Given name. In the U.S., the first name of a Person. This can be used along with familyName instead of the name property.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "globalLocationNumber",
+      "comment": "The Global Location Number (GLN, sometimes also referred to as International Location Number or ILN) of the respective organization, person, or place. The GLN is a 13-digit number used to identify parties and physical locations.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person",
+        "http://schema.org/Place"
+      ]
+    },
+    {
+      "label": "hasCredential",
+      "comment": "A credential awarded to the Person or Organization.",
+      "rangeIncludes": [
+        "http://schema.org/EducationalOccupationalCredential"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "hasOccupation",
+      "comment": "The Person's occupation. For past professions, use Role for expressing dates.",
+      "rangeIncludes": [
+        "http://schema.org/Occupation"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "hasOfferCatalog",
+      "comment": "Indicates an OfferCatalog listing for this Organization, Person, or Service.",
+      "rangeIncludes": [
+        "http://schema.org/OfferCatalog"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person",
+        "http://schema.org/Service"
+      ]
+    },
+    {
+      "label": "hasPOS",
+      "comment": "Points-of-Sales operated by the organization or person.",
+      "rangeIncludes": [
+        "http://schema.org/Place"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "height",
+      "comment": "The height of the item.",
+      "rangeIncludes": [
+        "http://schema.org/Distance",
+        "http://schema.org/QuantitativeValue"
+      ],
+      "domainIncludes": [
+        "http://schema.org/MediaObject",
+        "http://schema.org/Person",
+        "http://schema.org/Product",
+        "http://schema.org/VisualArtwork"
+      ]
+    },
+    {
+      "label": "homeLocation",
+      "comment": "A contact location for a person's residence.",
+      "rangeIncludes": [
+        "http://schema.org/ContactPoint",
+        "http://schema.org/Place"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "honorificPrefix",
+      "comment": "An honorific prefix preceding a Person's name such as Dr/Mrs/Mr.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "honorificSuffix",
+      "comment": "An honorific suffix preceding a Person's name such as M.D. /PhD/MSCSW.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "isicV4",
+      "comment": "The International Standard of Industrial Classification of All Economic Activities (ISIC), Revision 4 code for a particular organization, business person, or place.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person",
+        "http://schema.org/Place"
+      ]
+    },
+    {
+      "label": "jobTitle",
+      "comment": "The job title of the person (for example, Financial Manager).",
+      "rangeIncludes": [
+        "http://schema.org/DefinedTerm",
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "knows",
+      "comment": "The most generic bi-directional social/work relation.",
+      "rangeIncludes": [
+        "http://schema.org/Person"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "knowsAbout",
+      "comment": "Of a Person, and less typically of an Organization, to indicate a topic that is known about - suggesting possible expertise but not implying it. We do not distinguish skill levels here, or relate this to educational content, events, objectives or JobPosting descriptions.",
+      "rangeIncludes": [
+        "http://schema.org/Text",
+        "http://schema.org/Thing",
+        "http://schema.org/URL"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "knowsLanguage",
+      "comment": "Of a Person, and less typically of an Organization, to indicate a known language. We do not distinguish skill levels or reading/writing/speaking/signing here. Use language codes from the IETF BCP 47 standard.",
+      "rangeIncludes": [
+        "http://schema.org/Language",
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "makesOffer",
+      "comment": "A pointer to products or services offered by the organization or person. Inverse property: offeredBy.",
+      "rangeIncludes": [
+        "http://schema.org/Offer"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "memberOf",
+      "comment": "An Organization (or ProgramMembership) to which this Person or Organization belongs. Inverse property: member.",
+      "rangeIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/ProgramMembership"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "naics",
+      "comment": "The North American Industry Classification System (NAICS) code for a particular organization or business person.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "nationality",
+      "comment": "Nationality of the person.",
+      "rangeIncludes": [
+        "http://schema.org/Country"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "netWorth",
+      "comment": "The total financial value of the person as calculated by subtracting assets from liabilities.",
+      "rangeIncludes": [
+        "http://schema.org/MonetaryAmount",
+        "http://schema.org/PriceSpecification"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "owns",
+      "comment": "Products owned by the organization or person.",
+      "rangeIncludes": [
+        "http://schema.org/OwnershipInfo",
+        "http://schema.org/Product"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "parent",
+      "comment": "A parent of this person. Supersedes parents.",
+      "rangeIncludes": [
+        "http://schema.org/Person"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "performerIn",
+      "comment": "Event that this person is a performer or participant in.",
+      "rangeIncludes": [
+        "http://schema.org/Event"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "publishingPrinciples",
+      "comment": "The publishingPrinciples property indicates (typically via URL) a document describing the editorial principles of an Organization (or individual e.g. a Person writing a blog) that relate to their activities as a publisher, e.g. ethics or diversity policies. When applied to a CreativeWork (e.g. NewsArticle) the principles are those of the party primarily responsible for the creation of the CreativeWork.\n\nWhile such policies are most typically expressed in natural language, sometimes related information (e.g. indicating a funder) can be expressed using schema.org terminology.",
+      "rangeIncludes": [
+        "http://schema.org/CreativeWork",
+        "http://schema.org/URL"
+      ],
+      "domainIncludes": [
+        "http://schema.org/CreativeWork",
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "relatedTo",
+      "comment": "The most generic familial relation.",
+      "rangeIncludes": [
+        "http://schema.org/Person"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "seeks",
+      "comment": "A pointer to products or services sought by the organization or person (demand).",
+      "rangeIncludes": [
+        "http://schema.org/Demand"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "sibling",
+      "comment": "A sibling of the person. Supersedes siblings.",
+      "rangeIncludes": [
+        "http://schema.org/Person"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "sponsor",
+      "comment": "A person or organization that supports a thing through a pledge, promise, or financial contribution. e.g. a sponsor of a Medical Study or a corporate sponsor of an event.",
+      "rangeIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ],
+      "domainIncludes": [
+        "http://schema.org/CreativeWork",
+        "http://schema.org/Event",
+        "http://schema.org/Grant",
+        "http://schema.org/MedicalStudy",
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "spouse",
+      "comment": "The person's spouse.",
+      "rangeIncludes": [
+        "http://schema.org/Person"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "taxID",
+      "comment": "The Tax / Fiscal ID of the organization or person, e.g. the TIN in the US or the CIF/NIF in Spain.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "telephone",
+      "comment": "The telephone number.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/ContactPoint",
+        "http://schema.org/Organization",
+        "http://schema.org/Person",
+        "http://schema.org/Place"
+      ]
+    },
+    {
+      "label": "vatID",
+      "comment": "The Value-added Tax ID of the organization or person.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Organization",
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "weight",
+      "comment": "The weight of the product or person.",
+      "rangeIncludes": [
+        "http://schema.org/QuantitativeValue"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person",
+        "http://schema.org/Product"
+      ]
+    },
+    {
+      "label": "workLocation",
+      "comment": "A contact location for a person's place of work.",
+      "rangeIncludes": [
+        "http://schema.org/ContactPoint",
+        "http://schema.org/Place"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "worksFor",
+      "comment": "Organizations that the person works for.",
+      "rangeIncludes": [
+        "http://schema.org/Organization"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Person"
+      ]
+    },
+    {
+      "label": "additionalType",
+      "comment": "An additional type for the item, typically used for adding more specific types from external vocabularies in microdata syntax. This is a relationship between something and a class that the thing is in. In RDFa syntax, it is better to use the native RDFa syntax - the 'typeof' attribute - for multiple types. Schema.org tools may have only weaker understanding of extra types, in particular those defined externally.",
+      "rangeIncludes": [
+        "http://schema.org/URL"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Thing"
+      ]
+    },
+    {
+      "label": "alternateName",
+      "comment": "An alias for the item.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Thing"
+      ]
+    },
+    {
+      "label": "description",
+      "comment": "A description of the item.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Thing"
+      ]
+    },
+    {
+      "label": "disambiguatingDescription",
+      "comment": "A sub property of description. A short description of the item used to disambiguate from other, similar items. Information from other properties (in particular, name) may be necessary for the description to be useful for disambiguation.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Thing"
+      ]
+    },
+    {
+      "label": "identifier",
+      "comment": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links. See background notes for more details.",
+      "rangeIncludes": [
+        "http://schema.org/PropertyValue",
+        "http://schema.org/Text",
+        "http://schema.org/URL"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Thing"
+      ]
+    },
+    {
+      "label": "image",
+      "comment": "An image of the item. This can be a URL or a fully described ImageObject.",
+      "rangeIncludes": [
+        "http://schema.org/ImageObject",
+        "http://schema.org/URL"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Thing"
+      ]
+    },
+    {
+      "label": "mainEntityOfPage",
+      "comment": "Indicates a page (or other CreativeWork) for which this thing is the main entity being described. See background notes for details. Inverse property: mainEntity.",
+      "rangeIncludes": [
+        "http://schema.org/CreativeWork",
+        "http://schema.org/URL"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Thing"
+      ]
+    },
+    {
+      "label": "name",
+      "comment": "The name of the item.",
+      "rangeIncludes": [
+        "http://schema.org/Text"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Thing"
+      ]
+    },
+    {
+      "label": "potentialAction",
+      "comment": "Indicates a potential Action, which describes an idealized action in which this thing would play an 'object' role.",
+      "rangeIncludes": [
+        "http://schema.org/Action"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Thing"
+      ]
+    },
+    {
+      "label": "sameAs",
+      "comment": "URL of a reference Web page that unambiguously indicates the item's identity. E.g. the URL of the item's Wikipedia page, Wikidata entry, or official website.",
+      "rangeIncludes": [
+        "http://schema.org/URL"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Thing"
+      ]
+    },
+    {
+      "label": "subjectOf",
+      "comment": "A CreativeWork or Event about this Thing. Inverse property: about.",
+      "rangeIncludes": [
+        "http://schema.org/CreativeWork",
+        "http://schema.org/Event"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Thing"
+      ]
+    },
+    {
+      "label": "url",
+      "comment": "URL of the item.",
+      "rangeIncludes": [
+        "http://schema.org/URL"
+      ],
+      "domainIncludes": [
+        "http://schema.org/Thing"
+      ]
+    }
+  ]
+}
