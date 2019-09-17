@@ -1,10 +1,11 @@
 
-import request, { CoreOptions, Response } from 'request';
-import { promisify } from 'util';
 import xpath from 'xpath';
 import { DOMParser } from 'xmldom';
 import { tmpdir } from 'os';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { requestCache } from './ResponseRequestCache';
+import { promisify } from 'util';
+import url from 'url';
 
 const SNode = Symbol('node');
 const SParentOption = Symbol('parentOption');
@@ -31,50 +32,41 @@ type ParentOption = {
   principalParent?: ParentOptionC;
 }
 
+interface OptionsParseSchema {
+  useCache?: boolean;
+  transformUrls?(uri: string): string;
+  modeJsonSchema?: boolean;
+}
+
 const nameNodeMapToObjectAttributes = (namedNodeMap: NamedNodeMap) => {
   return Array(namedNodeMap.length).fill('')
     .map((_, i) => namedNodeMap.item(i) as Attr)
     .reduce((v, { name, value }) => (v[name] = value, v), {} as { [attr: string]: string });
 }
 
-export const ParseSchemaOrgCache = async (schemaUri: string) => {
+export const ParseSchemaOrgCache = async (schemaUri: string, opts?: OptionsParseSchema) => {
   const pathCache = `${tmpdir()}/schema_${Buffer.from(schemaUri).toString('hex')}.json`;
   // console.log(pathCache);
 
-  if (existsSync(pathCache)) {
+  if (opts && opts.useCache && existsSync(pathCache)) {
     return JSON.parse(readFileSync(pathCache, 'utf8'));
   }
 
-  const isp = (await parseSchemaOrg(schemaUri)) || {};
+  const isp = (await parseSchemaOrg(schemaUri, opts)) || {};
 
-  writeFileSync(pathCache, JSON.stringify(isp), 'utf8');
+  if (opts && opts.useCache) {
+    writeFileSync(pathCache, JSON.stringify(isp), 'utf8');
+  }
 
   return isp;
 }
 
-const requestCache = async (schemaUri: string, options: CoreOptions) => {
-  const pathCache = `${tmpdir()}/req_${Buffer.from(schemaUri).toString('hex')}.json`;
-
-  if (existsSync(pathCache)) {
-    return JSON.parse(readFileSync(pathCache, 'utf8'));
-  }
-
-  const res = await promisify<string, CoreOptions, Response>(request)(
-    schemaUri,
-    options,
-  );
-
-  writeFileSync(pathCache, JSON.stringify({
-    headers: res.headers,
-    body: res.body,
-    request: res.request,
-  }), 'utf8');
-
-  return res;
-}
-
-export default async function parseSchemaOrg(schemaUri: string) {
+export default async function parseSchemaOrg(schemaUri: string, opts?: OptionsParseSchema) {
   const res = await requestCache(schemaUri, { method: 'GET' });
+
+  if (res.statusCode === 404) {
+    throw new Error(`Cannot found ${schemaUri}.`)
+  }
 
   const doc = new DOMParser({
     errorHandler: {
@@ -84,7 +76,7 @@ export default async function parseSchemaOrg(schemaUri: string) {
     }//*[@id="mainContent"]/div[1]
   }).parseFromString(res.body);
 
-  return recoverSchemaDefinition(doc);
+  return recoverSchemaDefinition(doc, opts);
 }
 
 type SchemaDefinition = {
@@ -102,10 +94,10 @@ type SchemaDefinition = {
   toJSON(): any;
 }
 
-const recoverSchemaDefinition = (node: Document) => {
+const recoverSchemaDefinition = (node: Document, opts?: OptionsParseSchema) => {
   const elements = xpath.select('//*[@resource]|//*[@property]|//*[@typeof]', node) as Element[];
 
-  const schemaDefinitions = elements.map(prepareSchemaDefinition).map((e, i) => (e.id = i + 1, e));
+  const schemaDefinitions = elements.map(e => prepareSchemaDefinition(e, opts)).map((e, i) => (e.id = i + 1, e));
 
   schemaDefinitions.forEach((schemaDefinitionA, _, els) => {
     const parentOption = schemaDefinitionA[SParentOption];
@@ -138,7 +130,75 @@ const recoverSchemaDefinition = (node: Document) => {
     parentOption.principalParent.parentId === el.id
   ));
 
-  return schemaDefinitions.find(e => e.type === 'rdfs:Class');
+  const classDef = schemaDefinitions.find(e => e.type === 'rdfs:Class');
+
+  if (opts && opts.modeJsonSchema) {
+    if (classDef) {
+      const ob = classDef.toJSON();
+
+      const transformPrimmitiveTypes = (e: any) => {
+        const djson = e.toJSON();
+
+        if (typeof djson !== 'string') return e;
+
+        const { pathname } = url.parse(djson);
+
+        switch (pathname) {
+          case '/Date':
+          case '/URL':
+          case '/GenderType':
+          case '/Text':
+            return {
+              type: 'string',
+            }
+          case '/Number':
+            return {
+              type: 'number',
+            }
+          case '/Boolean':
+            return {
+              type: 'boolean',
+            }
+        }
+      }
+
+      return {
+        $id: ob.resource,
+        $schema: 'http://json-schema.org/draft-07/schema',
+        description: ob.comment,
+        properties: ob.properties.reduce((ac: any, _property: any) => {
+          const property = _property.toJSON() as any;
+
+          const oneof = property.rangeIncludes.map((e: any) => {
+            const r = transformPrimmitiveTypes(e);
+            return r ? r : {
+              $ref: e,
+            };
+          });
+
+          const u = new Map<string, any>();
+
+          oneof.forEach((e: any) => u.set(e.type || e.$ref, e));
+
+          const prop = {} as any;
+
+          prop.description = property.comment;
+
+          if (u.size === 1) {
+            Object.assign(prop, Array.from(u.values())[0]);
+          } else {
+            prop.anyOf = Array.from(u.values());
+          }
+
+          ac[property.label.toJSON()] = prop;
+
+          return ac;
+        }, {}),
+      };
+    }
+  } else {
+    return classDef;
+  }
 }
 
 const elementContains = (elementFind: Element, b: Element) => {
@@ -153,7 +213,7 @@ const elementContains = (elementFind: Element, b: Element) => {
   }
 }
 
-const prepareSchemaDefinition = (node: Element): SchemaDefinition => {
+const prepareSchemaDefinition = (node: Element, opts?: OptionsParseSchema): SchemaDefinition => {
   const attributes = nameNodeMapToObjectAttributes(node.attributes);
   const type = attributes.typeof as IspTypes || attributes.property as IspTypes;
   let label;
@@ -196,7 +256,7 @@ const prepareSchemaDefinition = (node: Element): SchemaDefinition => {
           return {
             label: childs.find(c => c.type === "rdfs:label"),
             comment: childs.find(c => c.type === 'rdfs:comment'),
-            resource,
+            resource: opts && opts.transformUrls ? opts.transformUrls(resource) : resource,
             sameAs: childs.find(c => c.type === 'sameAs'),
             equivalentClass: childs.find(c => c.type === 'owl:equivalentClass'),
             subClassOf: childs.find(c => c.type === "rdfs:subClassOf"),
@@ -209,7 +269,7 @@ const prepareSchemaDefinition = (node: Element): SchemaDefinition => {
         case 'rdfs:subClassOf':
         case 'domainIncludes':
         case 'rangeIncludes':
-        case 'sameAs': return href;
+        case 'sameAs': return opts && opts.transformUrls ? opts.transformUrls(href) : href;
         case 'rdfs:Property': {
           const rangeIncludes = childs.filter(c => c.type === 'rangeIncludes');
           const domainIncludes = childs.filter(c => c.type === 'domainIncludes');
