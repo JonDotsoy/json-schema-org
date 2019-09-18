@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 
 app.get('/:schameName', (req, res, next) => ParseSchemaOrgCache(`https://schema.org/${req.params.schameName}`, {
   modeJsonSchema: true,
-  useCache: true,
+  useCache: !true,
   transformUrls: (uri) => {
     const { hostname, pathname } = url.parse(uri, true);
 

@@ -190,11 +190,15 @@ const recoverSchemaDefinition = (node: Document, opts?: OptionsParseSchema) => {
 
           prop.description = property.comment;
 
-          if (u.size === 1) {
-            Object.assign(prop, Array.from(u.values())[0]);
-          } else {
-            prop.anyOf = Array.from(u.values());
-          }
+          prop.anyOf = [
+            ...Array.from(u.values()),
+            {
+              type: "array",
+              items: {
+                anyOf: Array.from(u.values())
+              }
+            }
+          ];
 
           ac[property.label.toJSON()] = prop;
 
