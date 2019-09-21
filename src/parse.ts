@@ -1,11 +1,12 @@
 
 import xpath from 'xpath';
 import { DOMParser } from 'xmldom';
-import { tmpdir } from 'os';
+import { tmpdir, EOL } from 'os';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { requestCache } from './ResponseRequestCache';
 import { promisify } from 'util';
 import url from 'url';
+import path from 'path';
 
 const SNode = Symbol('node');
 const SParentOption = Symbol('parentOption');
@@ -36,6 +37,7 @@ interface OptionsParseSchema {
   useCache?: boolean;
   transformUrls?(uri: string): string;
   modeJsonSchema?: boolean;
+  modeHTMLSchema?: boolean;
 }
 
 const nameNodeMapToObjectAttributes = (namedNodeMap: NamedNodeMap) => {
@@ -45,8 +47,15 @@ const nameNodeMapToObjectAttributes = (namedNodeMap: NamedNodeMap) => {
 }
 
 export const ParseSchemaOrgCache = async (schemaUri: string, opts?: OptionsParseSchema) => {
-  const pathCache = `${tmpdir()}/schema_${Buffer.from(schemaUri).toString('hex')}.json`;
-  // console.log(pathCache);
+  const typeKey = !opts
+    ? 'schema'
+    : opts.modeJsonSchema
+      ? 'json-schema'
+      : opts.modeHTMLSchema
+        ? 'html-schema'
+        : 'schema';
+
+  const pathCache = `${tmpdir()}/schema_${Buffer.from(schemaUri).toString('hex')}-${typeKey}.json`;
 
   if (opts && opts.useCache && existsSync(pathCache)) {
     return JSON.parse(readFileSync(pathCache, 'utf8'));
@@ -132,83 +141,163 @@ const recoverSchemaDefinition = (node: Document, opts?: OptionsParseSchema) => {
 
   const classDef = schemaDefinitions.find(e => e.type === 'rdfs:Class');
 
-  if (opts && opts.modeJsonSchema) {
-    if (classDef) {
-      const ob = classDef.toJSON();
+  if (opts && opts.modeHTMLSchema && classDef) {
+    const ob = classDef.toJSON();
+    const name = ob.label.toJSON();
+    const comment = ob.comment.toJSON() || '';
+    const subClassOf = ob.subClassOf.toJSON() || '';
+    const subClassOfName = subClassOf && path.basename(subClassOf);
+    const properties = ob.properties;
 
-      const transformPrimmitiveTypes = (e: any) => {
-        const djson = e.toJSON();
+    const rowsProperties = properties.map((property: any) => {
+      const p = property.toJSON();
+      const label = p.label.toJSON();
+      const comment = p.comment.toJSON();
+      const rangeIncludes = p.rangeIncludes.map((rangeInclude: any) => {
+        const typeUri = rangeInclude.toJSON();
+        const rangeIncludeStr = path.basename(typeUri);
+        return `<a href="${typeUri}">${rangeIncludeStr}</a>`;
+      }).join(' or ');
+      const domainIncludes = p.domainIncludes.map((domainInclude: any) => {
+        const typeUri = domainInclude.toJSON();
+        const w = path.basename(typeUri);
+        return `<a href="${typeUri}">${w}</a>`;
+      }).join(' and ');
 
-        if (typeof djson !== 'string') return e;
+      return `<tr>
+        <td><span>${label}</span></td>
+        <td><span>${rangeIncludes}</span></td>
+        <td><span>${comment}</span></td>
+        <td><span>${domainIncludes}</span></td>
+      </tr>`;
+    }).join(EOL);
 
-        const { pathname } = url.parse(djson);
 
-        switch (pathname) {
-          case '/URL':
-            return {
-              "title": "URL",
-              "description": "Matches the elements of a URL using a regular expression.",
-              "type": "string",
-              "pattern": "^([a-zA-Z][a-zA-Z0-9+.-]*):(?:\\/\\/((?:(?=((?:[a-zA-Z0-9-._~!$&'()*+,;=:]|%[0-9a-fA-F]{2})*))(\\3)@)?(?=((?:\\[?(?:::[a-fA-F0-9]+(?::[a-fA-F0-9]+)?|(?:[a-fA-F0-9]+:)+(?::[a-fA-F0-9]+)+|(?:[a-fA-F0-9]+:)+(?::|(?:[a-fA-F0-9]+:?)*))\\]?)|(?:[a-zA-Z0-9-._~!$&'()*+,;=]|%[0-9a-fA-F]{2})*))\\5(?::(?=(\\d*))\\6)?)(\\/(?=((?:[a-zA-Z0-9-._~!$&'()*+,;=:@\\/]|%[0-9a-fA-F]{2})*))\\8)?|(\\/?(?!\\/)(?=((?:[a-zA-Z0-9-._~!$&'()*+,;=:@\\/]|%[0-9a-fA-F]{2})*))\\10)?)(?:\\?(?=((?:[a-zA-Z0-9-._~!$&'()*+,;=:@\\/?]|%[0-9a-fA-F]{2})*))\\11)?(?:#(?=((?:[a-zA-Z0-9-._~!$&'()*+,;=:@\\/?]|%[0-9a-fA-F]{2})*))\\12)?$"
-            }
-          case '/Date':
-          case '/GenderType':
-          case '/Text':
-            return {
-              type: 'string',
-            }
-          case '/Number':
-            return {
-              type: 'number',
-            }
-          case '/Boolean':
-            return {
-              type: 'boolean',
-            }
-        }
-      }
+    return `<html>
 
-      return {
-        $id: ob.resource,
-        $schema: 'http://json-schema.org/draft-07/schema',
-        description: ob.comment,
-        properties: ob.properties.reduce((ac: any, _property: any) => {
-          const property = _property.toJSON() as any;
+      <head>
+        <title>${name}</title>
+        <meta name="description" content=${JSON.stringify(comment)}>
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:600&display=swap" rel="stylesheet">
+        <style>
+          * { font-family: 'Open Sans', sans-serif; }
 
-          const oneof = property.rangeIncludes.map((e: any) => {
-            const r = transformPrimmitiveTypes(e);
-            return r ? r : {
-              $ref: e,
-            };
-          });
+          table { 
+            display: table;
+            border-collapse: separate;
+            border-spacing: 2px;
+            border-color: gray;
+          }
 
-          const u = new Map<string, any>();
+          table, th, td {
+            border: 1px solid black;
+          }
 
-          oneof.forEach((e: any) => u.set(e.type || e.$ref, e));
+          table td {
+            padding: 5px 10px;
+          }
+        </style>
+      </head>
 
-          const prop = {} as any;
+      <body>
 
-          prop.description = property.comment;
+        <h1>${subClassOf ? `<a href="${subClassOf}">${subClassOfName}</a> > ` : ''}${name}</h1>
+        <p>${comment}</p>
 
-          prop.anyOf = [
-            ...Array.from(u.values()),
-            {
-              type: "array",
-              items: {
-                anyOf: Array.from(u.values())
-              }
-            }
-          ];
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Expected Type</th>
+              <th>Description</th>
+              <th>Included In</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsProperties}
+          </tbody>
+        </table>
 
-          ac[property.label.toJSON()] = prop;
+      </body>
 
-          return ac;
-        }, {}),
-      };
-    }
-  } else {
-    return classDef;
+    </html>`
   }
+
+  if (opts && opts.modeJsonSchema && classDef) {
+    const ob = classDef.toJSON();
+
+    const transformPrimmitiveTypes = (e: any) => {
+      const djson = e.toJSON();
+
+      if (typeof djson !== 'string') return e;
+
+      const { pathname } = url.parse(djson);
+
+      switch (pathname) {
+        case '/URL':
+          return {
+            "title": "URL",
+            "description": "Matches the elements of a URL using a regular expression.",
+            "type": "string",
+            "pattern": "^([a-zA-Z][a-zA-Z0-9+.-]*):(?:\\/\\/((?:(?=((?:[a-zA-Z0-9-._~!$&'()*+,;=:]|%[0-9a-fA-F]{2})*))(\\3)@)?(?=((?:\\[?(?:::[a-fA-F0-9]+(?::[a-fA-F0-9]+)?|(?:[a-fA-F0-9]+:)+(?::[a-fA-F0-9]+)+|(?:[a-fA-F0-9]+:)+(?::|(?:[a-fA-F0-9]+:?)*))\\]?)|(?:[a-zA-Z0-9-._~!$&'()*+,;=]|%[0-9a-fA-F]{2})*))\\5(?::(?=(\\d*))\\6)?)(\\/(?=((?:[a-zA-Z0-9-._~!$&'()*+,;=:@\\/]|%[0-9a-fA-F]{2})*))\\8)?|(\\/?(?!\\/)(?=((?:[a-zA-Z0-9-._~!$&'()*+,;=:@\\/]|%[0-9a-fA-F]{2})*))\\10)?)(?:\\?(?=((?:[a-zA-Z0-9-._~!$&'()*+,;=:@\\/?]|%[0-9a-fA-F]{2})*))\\11)?(?:#(?=((?:[a-zA-Z0-9-._~!$&'()*+,;=:@\\/?]|%[0-9a-fA-F]{2})*))\\12)?$"
+          }
+        case '/Date':
+        case '/GenderType':
+        case '/Text':
+          return {
+            type: 'string',
+          }
+        case '/Number':
+          return {
+            type: 'number',
+          }
+        case '/Boolean':
+          return {
+            type: 'boolean',
+          }
+      }
+    }
+
+    return {
+      $id: ob.resource,
+      $schema: 'http://json-schema.org/draft-07/schema',
+      description: ob.comment,
+      properties: ob.properties.reduce((ac: any, _property: any) => {
+        const property = _property.toJSON() as any;
+
+        const oneof = property.rangeIncludes.map((e: any) => {
+          const r = transformPrimmitiveTypes(e);
+          return r ? r : {
+            $ref: e,
+          };
+        });
+
+        const u = new Map<string, any>();
+
+        oneof.forEach((e: any) => u.set(e.type || e.$ref, e));
+
+        const prop = {} as any;
+
+        prop.description = property.comment;
+
+        prop.anyOf = [
+          ...Array.from(u.values()),
+          {
+            type: "array",
+            items: {
+              anyOf: Array.from(u.values())
+            }
+          }
+        ];
+
+        ac[property.label.toJSON()] = prop;
+
+        return ac;
+      }, {}),
+    };
+  }
+
+  return classDef;
 }
 
 const elementContains = (elementFind: Element, b: Element) => {
