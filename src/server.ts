@@ -22,17 +22,21 @@ app.use((req, res, next) => {
   return next();
 });
 
-app.get('/:schameName', (req, res, next) => ParseSchemaOrgCache(`https://schema.org/${req.params.schameName}`, {
-  modeJsonSchema: !!req.accepts('json'),
-  modeHTMLSchema: !!req.accepts('html'),
-  useCache: !true,
-  transformUrls: (uri) => {
-    const { hostname, pathname } = url.parse(uri, true);
+app.get('/:schameName', (req, res, next) => {
+  return ParseSchemaOrgCache(`https://schema.org/${req.params.schameName}`, {
+    modeJsonSchema: true,
+    modeHTMLSchema: false,
+    joinDep: true,
+    useCache: true,
+    models: {},
+    transformUrls: (uri) => {
+      const { hostname, pathname } = url.parse(uri, true);
 
-    return pathname && hostname === 'schema.org' ? url.resolve(BASE_URL, pathname) : uri;
-  },
-})
-  .then(r => !!req.accepts('html') ? res.type('html').send(r) : res.json(r))
-  .catch(next));
+      return pathname && hostname === 'schema.org' ? url.resolve(BASE_URL, pathname) : uri;
+    },
+  })
+    .then(r => res.json(r))
+    .catch(next)
+});
 
 app.listen(PORT, () => console.log(chalk`{grey #} Server ready {green http://localhost:${PORT.toString()}}`));

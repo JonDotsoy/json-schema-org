@@ -38,6 +38,9 @@ interface OptionsParseSchema {
   transformUrls?(uri: string): string;
   modeJsonSchema?: boolean;
   modeHTMLSchema?: boolean;
+  joinDep?: boolean;
+  showModels?: boolean;
+  models: { [k: string]: any };
 }
 
 const nameNodeMapToObjectAttributes = (namedNodeMap: NamedNodeMap) => {
@@ -103,7 +106,8 @@ type SchemaDefinition = {
   toJSON(): any;
 }
 
-const recoverSchemaDefinition = (node: Document, opts?: OptionsParseSchema) => {
+const SymbolPendingWorking = Symbol('Pending');
+const recoverSchemaDefinition = async (node: Document, opts?: OptionsParseSchema) => {
   const elements = xpath.select('//*[@resource]|//*[@property]|//*[@typeof]', node) as Element[];
 
   const schemaDefinitions = elements.map(e => prepareSchemaDefinition(e, opts)).map((e, i) => (e.id = i + 1, e));
@@ -226,7 +230,7 @@ const recoverSchemaDefinition = (node: Document, opts?: OptionsParseSchema) => {
   if (opts && opts.modeJsonSchema && classDef) {
     const ob = classDef.toJSON();
 
-    const transformPrimmitiveTypes = (e: any) => {
+    const transformPrimmitiveTypes = async (e: any) => {
       const djson = e.toJSON();
 
       if (typeof djson !== 'string') return e;
@@ -234,6 +238,10 @@ const recoverSchemaDefinition = (node: Document, opts?: OptionsParseSchema) => {
       const { pathname } = url.parse(djson);
 
       switch (pathname) {
+        case '/Thing':
+          return {
+            type: 'string',
+          };
         case '/URL':
           return {
             "title": "URL",
@@ -256,44 +264,59 @@ const recoverSchemaDefinition = (node: Document, opts?: OptionsParseSchema) => {
             type: 'boolean',
           }
       }
+
+      if (opts.joinDep) {
+        const modelName = path.basename(e.href);
+        if (!(modelName in opts.models)) {
+          opts.models[modelName] = SymbolPendingWorking;
+          opts.models[modelName] = await parseSchemaOrg(e.href, {
+            ...opts,
+            showModels: false,
+          });
+        }
+
+        return {
+          $ref: `#/models/${modelName}`,
+        }
+      }
     }
+
+    const reduceProperties = async (ac: any, _property: any) => {
+      const property = _property.toJSON() as any;
+      const oneof = await Promise.all(property.rangeIncludes.map(async (e: any) => {
+        const r = await transformPrimmitiveTypes(e);
+        return r ? r : {
+          $ref: e,
+        };
+      }));
+      const u = new Map<string, any>();
+      oneof.forEach((e: any) => u.set(e.type || e.$ref, e));
+      const prop = {} as any;
+      prop.description = property.comment;
+      prop.anyOf = [
+        ...Array.from(u.values()),
+        {
+          type: "array",
+          items: {
+            anyOf: Array.from(u.values())
+          }
+        }
+      ];
+      ac[property.label.toJSON()] = prop;
+      return ac;
+    };
 
     return {
       $id: ob.resource,
-      $schema: 'http://json-schema.org/draft-07/schema',
+      $schema: opts.showModels === undefined || opts.showModels ? 'http://json-schema.org/draft-07/schema' : undefined,
       description: ob.comment,
-      properties: ob.properties.reduce((ac: any, _property: any) => {
-        const property = _property.toJSON() as any;
-
-        const oneof = property.rangeIncludes.map((e: any) => {
-          const r = transformPrimmitiveTypes(e);
-          return r ? r : {
-            $ref: e,
-          };
-        });
-
-        const u = new Map<string, any>();
-
-        oneof.forEach((e: any) => u.set(e.type || e.$ref, e));
-
-        const prop = {} as any;
-
-        prop.description = property.comment;
-
-        prop.anyOf = [
-          ...Array.from(u.values()),
-          {
-            type: "array",
-            items: {
-              anyOf: Array.from(u.values())
-            }
-          }
-        ];
-
-        ac[property.label.toJSON()] = prop;
-
-        return ac;
-      }, {}),
+      models: opts.showModels === undefined || opts.showModels ? opts.models : undefined,
+      properties: await ob.properties.reduce(
+        (acum: Promise<any>, p: any) => acum.then((o) => {
+          return reduceProperties(o, p)
+        }),
+        Promise.resolve({}),
+      ),
     };
   }
 
